@@ -1,0 +1,33 @@
+#!/bin/bash
+((i=0))
+((j=0))
+firstdir="/Final QRT"
+startdir="/Final QRT/Linux/Jay"
+((dir=0))
+((dirlist=0))
+((teamname=0))
+
+echo "Input Path to Directory List"
+read -r dirlist
+echo "Input Team Names"
+read -r teamname
+mkdir "$startdir" -p &&
+cd "$startdir" || exit
+
+while read -r dir ; do
+	((i++))
+	printf -v j '%02d' $i
+	umask 003
+	mkdir "$dir" -p
+	echo "Some content" > "${dir}/file1.txt"
+	echo "More content" > "${dir}/file2.txt"
+	chgrp -R "$teamname""$j" "$dir"
+done < <(cat "$dirlist")
+
+umask 077
+mkdir "XStuffX" &&
+cd "XStuffX" &&
+echo "Some content" > "file1.txt" &&
+echo "More content" > "file2.txt" &&
+chown -R kaisertom "$firstdir"
+chgrp -R kaisertom "$startdir/XStuffX"

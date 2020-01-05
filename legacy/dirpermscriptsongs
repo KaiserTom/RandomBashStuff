@@ -1,0 +1,31 @@
+#!/bin/bash
+((i=0))
+((j=0))
+firstdir="/Zy"
+startdir="/Zy/Favorite/Music/Is"
+((dir=0))
+((best=0))
+((worst=0))
+
+mkdir "$startdir" -p &&
+cd "$startdir" || exit
+
+while read -r dir ; do
+	((i++))
+	printf -v j '%02d' $i
+	umask 003
+	mkdir "$dir" -p
+	read -r -p "Enter ${dir}'s Best Song: " best </dev/tty
+	echo "$best" > "${dir}/Best song.txt"
+	read -r -p "Enter ${dir}'s Worst Song: " worst </dev/tty
+	echo "$worst" > "${dir}/Worst song.txt"
+	chgrp -R roady$j "$dir"
+done < /home/kaisertom/dirlist
+
+umask 077
+mkdir "Daft Punk" &&
+cd "Daft Punk" &&
+echo "Aerodynamic" > "Best song.txt" &&
+echo "Teachers" > "Worst song.txt" &&
+chown -R kaisertom $firstdir
+chgrp -R kaisertom "$startdir/Daft Punk"

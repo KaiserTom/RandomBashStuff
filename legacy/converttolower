@@ -1,0 +1,6 @@
+echo "Input Path to file to be converted"
+read f
+a=$(cat $f)
+b=$(echo "${a,,}")
+g="${f}convert"
+echo "${b//[[:blank:]]/}" > "$g"

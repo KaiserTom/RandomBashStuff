@@ -1,0 +1,24 @@
+#! /bin/bash
+((i=0))					#Double brackets declare an expression
+((j=0))
+((f=0))
+((k=0))
+((p=0))
+((g=0))
+((l=0))
+((m=0))
+
+echo "Input Path to Userlist"
+read -r f				#Takes path to file
+a=$(cat "$f")				#Puts content of file into a
+b="${a,,}"				#Takes a and converts uppercase to lowercase and puts it into b
+g="${b//[[:blank:]]/}"			#Takes b and elminates spaces and puts it into g
+
+while read -r p ; do			#Reads through each line of g and puts it into p
+	((i++ ));
+	((j+=i%2));
+	printf -v k '%02d' $j;		#Increments k every other line and formats it as two digits with a leading zero
+	groupadd roady$k;		#Creates a student group every 2 users
+	useradd -U $p && echo "User $p added"; #Takes p and creates that user and their group
+	usermod -G $p,roady$k $p;	#Adds user to group
+done < <(echo "$g")

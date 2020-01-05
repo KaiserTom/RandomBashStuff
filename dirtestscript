@@ -1,0 +1,69 @@
+#!/bin/bash
+
+firstdir=""
+startdir=""
+enddir=""
+dir=""
+privdir=""
+teamname=""
+
+read -r -p "Enter Team Prefix: " teamname
+
+while true; do
+	read -r -p "Enter next directory: " startdir
+	if [ "$startdir" = "" ]
+	then
+		echo "$dir Created."		
+		break
+	else
+	dir=${dir}/${startdir}
+	fi
+	echo "$dir"
+done
+
+firstdir=$(echo "$dir" | cut -d '/' -f 1-2)
+mkdir "$dir" -p
+umask 003
+
+while true; do
+	echo "Current Team Prefix: $teamname"
+	read -r -p "Enter End directories: " enddir
+	case "$enddir" in
+        "") echo "Directories created and assigned"
+            chown -R kaisertom "$firstdir"
+            break
+        ;;
+        t ) read -r -p "Enter new Team Prefix: " teamname
+            read -r -p "Enter Team starting number: " i
+	    ;;
+        p ) read -r -p "Enter Name for Private Directory: " privdir
+            umask 077
+            privdir=${dir}/${privdir}
+            mkdir -p "$privdir"
+            echo "Some Content" > "$privdir""/best_part.txt"
+	        echo "More Content" > "$privdir""/Worst part.txt"
+            chown -R kaisertom:kaisertom "$privdir"
+            echo "$privdir"" Created."
+            umask 003
+        ;;
+        s ) read -r -p "Enter Name for Support Directory: " supdir
+            supdir=${dir}/${supdir}
+            mkdir -p "$supdir"
+	        echo "Some Content" > "$supdir""/best_part.txt"
+	        echo "More Content" > "$supdir""/Worst part.txt"
+            chgrp -R "$teamname" "$supdir"
+            echo "$supdir"" Created."
+        ;;
+        * ) ((i++))
+	        printf -v j '%02d' $i
+            enddir=${dir}/${enddir}
+	        mkdir -p "$enddir"
+	        umask 007
+	        echo "Some Content" > "$enddir""/best_part.txt"
+	        echo "More Content" > "$enddir""/Worst part.txt"
+	        chgrp -R "$teamname""$j" "$enddir"
+            echo "$enddir"" Created."
+	        umask 003
+        ;;
+	esac
+done

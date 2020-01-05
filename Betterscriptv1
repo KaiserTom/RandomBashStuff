@@ -1,0 +1,41 @@
+#!/bin/bash
+USERSPATH="/home/kaisertom/scripts/fulluserlist"
+((USERSNUMBER=0))
+USERSCAT=""
+USERSLOWER=""
+TEAMNAME=""
+((TEAMSPERPREFIX=0))
+
+read -r -p "Input number of users to create: " USERSNUMBER
+read -r -p "Input Initial Team Prefix: " TEAMNAME
+read -r -p "Input Number of Teams per Prefix: " TEAMSPERPREFIX
+
+USERSCAT=$(cat "$USERSPATH")
+USERSLOWER="${USERSCAT,,}"
+
+usercreate() {
+    USER=$(echo "$USERSLOWER" | sed -n "$1""p")
+    USERFIRSTINITIAL=$(echo "$USER" | cut -c1)
+    USERLASTNAME=$(echo "$USER" | cut -d " " -f2)
+    USERNAME="$USERFIRSTINITIAL""$USERLASTNAME"
+    FULLNAME=$(sed -n "$1""p" "$USERSPATH")
+    ((J+=${1}%2))
+    printf -v K '%02d' $J
+    groupadd "$TEAMNAME"
+    groupadd "$TEAMNAME""$K"
+    useradd -m -c "$FULLNAME" -s /bin/bash -U "$USERNAME" && echo "User $USERNAME added"
+    echo "$USERNAME:P@\$\$word" | chpasswd && echo "${USERNAME}s Password Set"
+    usermod -G "$USERNAME","$TEAMNAME","$TEAMNAME""$K" "$USERNAME"
+    if [ "$TEAMSPERPREFIX" != "" ]
+        then
+        if ! ((J % TEAMSPERPREFIX)) && ! ((${1} % TEAMSPERPREFIX))
+            then
+            read -r -p "Input New Team Prefix: " TEAMNAME
+            ((J=0))
+        fi
+    fi
+}
+
+for i in $(seq 1 "$USERSNUMBER"); do
+    usercreate "$i"
+done

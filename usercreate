@@ -1,0 +1,49 @@
+#!/bin/bash
+((i=0))					#Double brackets declare an expression
+((j=0))
+userpath=""
+((usernumber=0))
+teamname=""
+fullname=""
+((k=0))
+username=""
+((g=0))
+#((l=0))
+#((m=0))
+
+echo "Input Path to Userlist"
+read -r userpath				#Takes path to file
+echo "Input number of users to create"
+read -r usernumber
+echo "Input Team Prefix"
+read -r teamname
+echo "Input Number of Teams per Prefix"
+read -r teamsperprefix
+a=$(cat "$userpath")				#Puts content of file into a
+b="${a,,}"					#Takes a and converts uppercase to lowercase and puts it into b
+g="${b//[[:blank:]]/}"				#Takes b and elminates spaces and puts it into g
+
+for i in $(seq 1 "$usernumber"); do	
+	username=$(echo "$g" | sed -n "$i""p")		#Reads through each line of g and puts it into p
+	fullname=$(sed -n "$i""p" "$userpath")
+	((j+=i%2));
+	printf -v k '%02d' $j;			#Increments k every other line and formats it as two digits with a leading zero
+	groupadd "$teamname"
+	groupadd "$teamname""$k";		#Creates a student group every 2 users
+	useradd -m -c "$fullname" -s /bin/bash -U "$username" && echo "User $username added";	#Takes p and creates that user and their group
+	echo  "$username:P@\$\$word" | chpasswd && echo "User Password Set";
+	usermod -G "$username","$teamname","$teamname""$k" "$username";	  	#Adds user to group
+	#((l=j+5));
+	#printf -v m '%02d' $l;
+	#groupadd "$teamname""$m";	
+	#usermod -G $username,"$teamname""$k","$teamname""$m" $username;
+	if [ "$teamsperprefix" != "" ]
+	then
+	        if ! ((j % teamsperprefix)) && ! ((i % teamsperprefix))
+	        then
+			echo "Input new Team Prefix"
+			read -r teamname
+			((j=0))
+	        fi
+	fi
+done

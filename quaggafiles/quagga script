@@ -1,0 +1,44 @@
+#!/bin/bash
+
+cp ./daemons /etc/quagga/daemons &&
+cp /usr/share/doc/quagga/examples/zebra.conf.sample /etc/quagga/zebra.conf &&
+cp /usr/share/doc/quagga/examples/ripd.conf.sample /etc/quagga/ripd.conf &&
+chown quagga:quaggavty /etc/quagga/*.conf &&
+chmod 640 /etc/quagga/*.conf &&
+/etc/init.d/quagga start &&
+{ echo "zebra";
+echo "en";
+echo "zebra";
+echo "conf t";
+echo "hostname UbuntuRouter";
+echo "debug zebra events";
+echo "debug zebra packet";
+echo "password ubuntu";
+echo "enable password ubuntu";
+echo "interface eth0";
+echo "ipv6 nd suppress-ra";
+echo "exit";
+echo "interface eth1";
+echo "ipv6 nd suppress-ra";
+echo "exit";
+echo "ip forwarding";
+echo "do wr";
+echo "exit";
+echo "exit"; } | telnet localhost zebra;
+{ echo "zebra";
+echo "en";
+echo "conf t";
+echo "hostname UbuntuRouter";
+echo "password ubuntu";
+echo "debug rip events";
+echo "debug rip packet";
+echo "router rip";
+echo "version 2";
+echo "network eth0";
+echo "network eth1";
+echo "do wr";
+echo "exit";
+echo "exit";
+echo "exit"; } | telnet localhost ripd;
+/etc/init.d/quagga restart;
+cp ./sysctl.conf /etc/sysctl.conf;

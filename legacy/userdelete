@@ -1,0 +1,18 @@
+#! /bin/bash
+((i=0))					#Double brackets declare an expression
+((j=0))
+((f=0))
+((k=0))
+((p=0))
+((g=0))
+
+echo "Input Path to Userlist"
+read -r f				#Takes path to file
+a=$(cat "$f")				#Puts content of file into a
+b="${a,,}"				#Takes a and converts uppercase to lowercase and puts it into b
+g="${b//[[:blank:]]/}"			#Takes b and elminates spaces and puts it into g
+
+while read -r p ; do
+	userdel "$p" ;			#Deletes each user in the list
+	echo "User $p deleted" ;
+done < <(echo "$g")
